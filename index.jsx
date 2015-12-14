@@ -136,7 +136,7 @@ static _componentMap = new Map()
     this.setState({size})
   }
 
-  static makeChild (child, className) {
+  static makeChild (child, className, sizeProp) {
     // just add our new class name onto the chilren, this alleviates the need to
     // create a wrapper div
     const classNames = []
@@ -144,7 +144,10 @@ static _componentMap = new Map()
     if (existingClassName) classNames.push(existingClassName)
     if (className) classNames.push(className)
 
-    return cloneElement(child, {className: classNames.join(' ')})
+    const sizePropName = sizeProp ? sizeProp.name : null
+    const sizePropValue = sizeProp ? sizeProp.value : null
+
+    return cloneElement(child, {className: classNames.join(' '), [sizePropName]: sizePropValue})
   }
 
   static onResize () {
@@ -157,6 +160,10 @@ static _componentMap = new Map()
       ? this.state.size
       : this.props.default
     const className = size ? this.props.makeClassName(size) : ''
+    const sizeProp = this.props.sizeProp ? {
+      name: this.props.sizeProp,
+      value: className
+    } : null;
     const makeChild = ElementQuery.makeChild
     const {children} = this.props
     const child = Array.isArray(children) && Children.count(children) === 1
@@ -169,6 +176,6 @@ static _componentMap = new Map()
     // like real element queries, this enables the user to do things like wrap
     // an `<li>` in an element query and not break HTML semantics, or use
     // element query and not break expectations around things like flexbox.
-    return makeChild(Children.only(child), className)
+    return makeChild(Children.only(child), className, sizeProp)
   }
 }
